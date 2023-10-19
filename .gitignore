@@ -3,6 +3,18 @@ target/
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
+!**/src/main/resources/application.properties
+
+*.java.hsp
+*.sonarj
+*.sw*
+.DS_Store
+build.sh
+integration-repo
+ivy-cache
+argfile*
+activemq-data/
+classes/
 
 ### STS ###
 .apt_generated
@@ -18,6 +30,8 @@ target/
 *.iws
 *.iml
 *.ipr
+out
+test-output
 
 ### NetBeans ###
 /nbproject/private/
