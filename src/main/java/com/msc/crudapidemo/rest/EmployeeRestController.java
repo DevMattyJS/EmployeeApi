@@ -1,7 +1,8 @@
 package com.msc.crudapidemo.rest;
 
-import com.msc.crudapidemo.dao.EmployeeDAO;
 import com.msc.crudapidemo.entity.Employee;
+import com.msc.crudapidemo.service.EmployeeService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,15 +13,15 @@ import java.util.List;
 @RequestMapping("/api")
 public class EmployeeRestController {
 
-    private EmployeeDAO employeeDAO;
+    private EmployeeService employeeService;
 
-    // inject EmployeeDao for now for testing => will be refactored later
-    public EmployeeRestController(EmployeeDAO employeeDAO) {
-        this.employeeDAO = employeeDAO;
+    @Autowired
+    public EmployeeRestController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
     }
 
     @GetMapping("/employees")
     public List<Employee> getAllEmployees() {
-        return employeeDAO.findAll();
+        return employeeService.findAll();
     }
 }
