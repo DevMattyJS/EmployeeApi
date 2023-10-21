@@ -5,36 +5,32 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.provisioning.JdbcUserDetailsManager;
+import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+
+import javax.sql.DataSource;
 
 // Security configuration class
 @Configuration
 public class DemoSecurityConfig {
+
+    // add support for JDBC (users are stored in a database) => no more hardcoded users
+    // Spring will look for 'users' and 'authorities' tables in our DB schema and use user data from these tables by default
     @Bean
-    public InMemoryUserDetailsManager userDetailsManager() {
+    public UserDetailsManager userDetailsManager(DataSource dataSource) {
 
-        UserDetails john = User.builder()
-                .username("john")
-                .password("{noop}test123")
-                .roles("EMPLOYEE")
-                .build();
+        JdbcUserDetailsManager jdbcUserDetailsManager = new JdbcUserDetailsManager(dataSource);
 
-        UserDetails mary = User.builder()
-                .username("mary")
-                .password("{noop}test123")
-                .roles("EMPLOYEE", "MANAGER")
-                .build();
+        // set up to use custom tables 'members' and 'roles' for user data, instead of default ones
+        // ? => parameter value (username from login)
+        jdbcUserDetailsManager.setUsersByUsernameQuery(
+                "SELECT user_id, pw, active FROM members WHERE user_id=?");
 
-        UserDetails susan = User.builder()
-                .username("susan")
-                .password("{noop}test123")
-                .roles("EMPLOYEE", "MANAGER", "ADMIN")
-                .build();
+        jdbcUserDetailsManager.setAuthoritiesByUsernameQuery(
+                "SELECT user_id, role FROM roles WHERE user_id=?");
 
-        return new InMemoryUserDetailsManager(john, mary, susan);
+        return jdbcUserDetailsManager;
     }
 
     @Bean
@@ -60,4 +56,32 @@ public class DemoSecurityConfig {
 
         return http.build();
     }
+
+    // we will not use these hardcoded users anymore
+    // we will use JDBC security support
+    /*
+    @Bean
+    public InMemoryUserDetailsManager userDetailsManager() {
+
+        UserDetails john = User.builder()
+                .username("john")
+                .password("{noop}test123")
+                .roles("EMPLOYEE")
+                .build();
+
+        UserDetails mary = User.builder()
+                .username("mary")
+                .password("{noop}test123")
+                .roles("EMPLOYEE", "MANAGER")
+                .build();
+
+        UserDetails susan = User.builder()
+                .username("susan")
+                .password("{noop}test123")
+                .roles("EMPLOYEE", "MANAGER", "ADMIN")
+                .build();
+
+        return new InMemoryUserDetailsManager(john, mary, susan);
+    }
+*/
 }
